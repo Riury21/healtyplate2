@@ -61,7 +61,11 @@ class Laporankeuangan extends Page
         $jurnal = DB::table('jurnal_umums')
             ->whereMonth('tanggal', $bulanIni->month)
             ->whereYear('tanggal', $bulanIni->year)
-            ->where('transaksi', 'like', '%Beban%')
+            ->where(function ($query) {
+                $query->where('transaksi', 'like', '%Beban%')
+                    ->orWhere('transaksi', 'like', '%PPH 23%')
+                    ->orWhere('transaksi', 'like', '%Potongan%');
+            })
             ->select('transaksi', DB::raw('SUM(jumlah) as total'))
             ->groupBy('transaksi')
             ->get();
