@@ -56,27 +56,39 @@
                     <th class="border px-2 py-1 bg-yellow-50">Sesi</th>
                 </tr>
             </thead>
-            <tbody>
-                @foreach ($rekap as $baris)
-                    <tr>
-                        <td class="border px-2 py-1 whitespace-nowrap">{{ \Carbon\Carbon::parse($baris['tanggal'])->format('j/n/Y') }}</td>
+<tbody>
+    @if ($rekap->isEmpty())
+        <tr>
+            <td colspan="{{ 1 + $allInstansi->count() * 2 + 3 }}"
+                class="text-center text-gray-500 dark:text-gray-400 italic py-4 border">
+                Tidak ada data pada bulan {{ \Carbon\Carbon::parse($bulan)->translatedFormat('F Y') }}.
+            </td>
+        </tr>
+    @else
+        @foreach ($rekap as $baris)
+            <tr>
+                <td class="border px-2 py-1 whitespace-nowrap">
+                    {{ \Carbon\Carbon::parse($baris['tanggal'])->format('j/n/Y') }}
+                </td>
 
-                        @foreach ($allInstansi as $instansi)
-                            @php
-                                $data = $baris['instansi'][$instansi] ?? ['pendapatan' => 0, 'jumlah' => 0];
-                            @endphp
-                            <td class="border px-2 py-1 text-right">Rp {{ number_format($data['pendapatan'], 0, ',', '.') }}</td>
-                            <td class="border px-2 py-1 text-center">{{ $data['jumlah'] }}</td>
-                        @endforeach
-
-                        <td class="border px-2 py-1 text-right bg-yellow-50 font-semibold">
-                            Rp {{ number_format($baris['total_pendapatan'], 0, ',', '.') }}
-                        </td>
-                        <td class="border px-2 py-1 text-center bg-yellow-50 font-semibold">{{ $baris['total_jumlah'] }}</td>
-                        <td class="border px-2 py-1 text-center bg-yellow-50 font-semibold">{{ $baris['total_sesi'] }}</td>
-                    </tr>
+                @foreach ($allInstansi as $instansi)
+                    @php
+                        $data = $baris['instansi'][$instansi] ?? ['pendapatan' => 0, 'jumlah' => 0];
+                    @endphp
+                    <td class="border px-2 py-1 text-right">Rp {{ number_format($data['pendapatan'], 0, ',', '.') }}</td>
+                    <td class="border px-2 py-1 text-center">{{ $data['jumlah'] }}</td>
                 @endforeach
-            </tbody>
+
+                <td class="border px-2 py-1 text-right bg-yellow-50 font-semibold">
+                    Rp {{ number_format($baris['total_pendapatan'], 0, ',', '.') }}
+                </td>
+                <td class="border px-2 py-1 text-center bg-yellow-50 font-semibold">{{ $baris['total_jumlah'] }}</td>
+                <td class="border px-2 py-1 text-center bg-yellow-50 font-semibold">{{ $baris['total_sesi'] }}</td>
+            </tr>
+        @endforeach
+    @endif
+</tbody>
+
             <tfoot>
                 <tr class="bg-yellow-400 text-black dark:bg-gray-700 dark:text-white">
                     <td class="border px-2 py-1 text-right">Total</td>

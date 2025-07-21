@@ -1,6 +1,8 @@
 <x-filament::page>
+
+    {{-- 🔍 Filter Bulan --}}
     <div class="mb-4">
-        <form method="GET" class="flex items-center gap-2">
+        <form method="GET" class="flex items-center gap-3">
             <label for="bulan" class="text-sm font-semibold">Pilih Bulan:</label>
             <input
                 type="month"
@@ -9,16 +11,12 @@
                 value="{{ request('bulan', now()->format('Y-m')) }}"
                 class="border border-gray-300 rounded px-3 py-1 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-800"
             >
-            <div class="mb-0 p-0 border rounded bg-gray-100 dark:bg-gray-800 dark:border-gray-700">
-                <form method="GET" class="flex flex-wrap items-center gap-3">
-                    <button
-                        type="submit"
-                        class="bg-yellow-400 text-black dark:bg-gray-700 dark:text-white px-4 py-1 rounded text-sm hover:opacity-90 transition"
-                    >
-                        Tampilkan
-                    </button>
-                </form>
-            </div>
+            <button
+                type="submit"
+                class="bg-yellow-400 text-black dark:bg-gray-700 dark:text-white px-4 py-1 rounded text-sm hover:opacity-90 transition"
+            >
+                Tampilkan
+            </button>
         </form>
     </div>
 
@@ -193,21 +191,24 @@
     @endphp
 
     {{-- 💰 Saldo Farras --}}
-    <div class="my-4 p-4 rounded border bg-yellow-100 text-yellow-900 font-semibold">
+    <div class="my-6 p-4 rounded-xl border bg-gradient-to-r from-green-50 to-green-100 dark:from-gray-800 dark:to-gray-900 shadow text-green-800 dark:text-green-200 font-semibold">
         💰 Saldo Farras per {{ $bulanIni->translatedFormat('F Y') }}:
-        <span class="text-black">Rp {{ number_format($saldoFarras, 0, ',', '.') }}</span>
+        <span class="text-black dark:text-white">Rp {{ number_format($saldoFarras, 0, ',', '.') }}</span>
     </div>
 
-    <div class="mt-10 border rounded overflow-x-auto">
-        <div class="bg-yellow-300 text-center font-bold py-2">Laporan Hutang</div>
-        <table class="min-w-full text-sm border">
-            <thead class="bg-gray-800 text-white">
+    {{-- 📋 Laporan Hutang --}}
+    <div class="mt-6 border rounded-md shadow-sm overflow-x-auto bg-white dark:bg-gray-900 w-full max-w-md mx-auto">
+        <div class="bg-purple-200 dark:bg-gray-800 text-center font-semibold py-2 text-sm text-purple-900 dark:text-white rounded-t-md">
+            📋 Laporan Hutang
+        </div>
+        <table class="w-full text-xs border border-gray-300 dark:border-gray-700 border-collapse table-fixed">
+            <thead class="bg-gray-700 text-white">
                 <tr>
-                    <th class="px-4 py-2 border text-left">Keterangan</th>
-                    <th class="px-4 py-2 border text-right">Nilai Hutang</th>
+                    <th class="px-2 py-1 border border-gray-300 dark:border-gray-600 text-left">Keterangan</th>
+                    <th class="px-2 py-1 border border-gray-300 dark:border-gray-600 text-right">Hutang</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="bg-white dark:bg-gray-900">
                 @php
                     $rowsHutang = collect($rowsSaldo)
                         ->filter(fn($row) => $row['hutang'] !== null && $row['hutang'] != 0)
@@ -218,38 +219,41 @@
                 @endphp
 
                 @foreach ($rowsHutang as $row)
-                    <tr class="hover:bg-purple-100">
-                        <td class="px-4 py-1 border text-left">{{ $row['nama'] }}</td>
-                        <td class="px-4 py-1 border text-right text-blue-700">
+                    <tr class="hover:bg-yellow-50 dark:hover:bg-gray-800">
+                        <td class="px-2 py-1 border border-gray-300 dark:border-gray-700 text-left">
+                            {{ $row['nama'] }}
+                        </td>
+                        <td class="px-2 py-1 border border-gray-300 dark:border-gray-700 text-right text-blue-700">
                             Rp {{ number_format($row['hutang'], 0, ',', '.') }}
                         </td>
                     </tr>
                 @endforeach
-
             </tbody>
         </table>
     </div>
 
-    <div class="flex flex-col lg:flex-row gap-6">
+    <div class="flex flex-col lg:flex-row gap-6 mt-10">
         {{-- 📘 Trial Balance Pembelian --}}
-        <div class="w-full lg:w-1/2 border rounded overflow-x-auto">
-            <div class="bg-yellow-300 text-center font-bold py-2">Trial Balance Pembelian</div>
-            <table class="min-w-full text-sm border">
+        <div class="w-full lg:w-1/2 border rounded-xl shadow-md overflow-x-auto bg-white dark:bg-gray-900">
+            <div class="bg-gradient-to-r from-yellow-300 to-yellow-200 dark:from-gray-700 dark:to-gray-800 text-center font-bold py-3 text-lg text-black dark:text-white rounded-t-xl">
+                📘 Trial Balance Pembelian
+            </div>
+            <table class="w-full text-sm border border-gray-300 dark:border-gray-700 table-fixed border-collapse">
                 <thead class="bg-gray-800 text-white">
                     <tr>
-                        <th class="px-4 py-2 border text-left">Keterangan</th>
-                        <th class="px-4 py-2 border text-right">Debit</th>
-                        <th class="px-4 py-2 border text-right">Kredit</th>
+                        <th class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-left">Keterangan</th>
+                        <th class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-right">Debit</th>
+                        <th class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-right">Kredit</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="bg-white dark:bg-gray-900">
                     @foreach ($rowsPembelian as $row)
-                        <tr class="{{ $row['nama'] === 'TOTAL' ? 'bg-yellow-200 font-bold' : 'hover:bg-purple-100' }}">
-                            <td class="px-4 py-1 border text-left">{{ $row['nama'] }}</td>
-                            <td class="px-4 py-1 border text-right text-green-700">
+                        <tr class="{{ $row['nama'] === 'TOTAL' ? 'bg-yellow-200 font-bold dark:bg-yellow-600/20' : 'hover:bg-yellow-50 dark:hover:bg-gray-800' }}">
+                            <td class="px-4 py-2 border border-gray-300 dark:border-gray-700 text-left">{{ $row['nama'] }}</td>
+                            <td class="px-4 py-2 border border-gray-300 dark:border-gray-700 text-right text-green-700">
                                 {{ $row['debit'] ? 'Rp ' . number_format($row['debit'], 0, ',', '.') : '-' }}
                             </td>
-                            <td class="px-4 py-1 border text-right text-red-700">
+                            <td class="px-4 py-2 border border-gray-300 dark:border-gray-700 text-right text-red-700">
                                 {{ $row['kredit'] ? 'Rp ' . number_format($row['kredit'], 0, ',', '.') : '-' }}
                             </td>
                         </tr>
@@ -258,37 +262,39 @@
             </table>
         </div>
 
-        {{-- 📟 Trial Balance Saldo Hutang Umum --}}
-        <div class="w-full lg:w-1/2 border rounded overflow-x-auto">
-            <div class="bg-yellow-300 text-center font-bold py-2">Trial Balance Saldo + Hutang Umum</div>
-            <table class="min-w-full text-sm border">
-                <thead class="bg-gray-800 text-white">
-                    <tr>
-                        <th class="px-4 py-2 border text-left">Keterangan</th>
-                        <th class="px-4 py-2 border text-right">Debit</th>
-                        <th class="px-4 py-2 border text-right">Kredit</th>
-                        <th class="px-4 py-2 border text-right">Hutang</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($rowsSaldo as $row)
-                        <tr class="{{ $row['nama'] === 'TOTAL' ? 'bg-yellow-200 font-bold' : 'hover:bg-purple-100' }}">
-                            <td class="px-4 py-1 border text-left">{{ $row['nama'] }}</td>
-                            <td class="px-4 py-1 border text-right text-green-700">
-                                {{ $row['debit'] !== null ? 'Rp ' . number_format($row['debit'], 0, ',', '.') : '-' }}
-                            </td>
-                            <td class="px-4 py-1 border text-right text-red-700">
-                                {{ $row['kredit'] !== null ? 'Rp ' . number_format($row['kredit'], 0, ',', '.') : '-' }}
-                            </td>
-                            <td class="px-4 py-1 border text-right text-blue-700">
-                                {{ $row['hutang'] !== null ? 'Rp ' . number_format($row['hutang'], 0, ',', '.') : '-' }}
-                            </td>
+        {{-- 📟 Trial Balance Saldo + Hutang Umum --}}
+        <div class="w-full border rounded-xl shadow-lg bg-white dark:bg-gray-900">
+            <div class="bg-gradient-to-r from-yellow-300 to-yellow-200 dark:from-gray-700 dark:to-gray-800 text-center font-bold py-3 text-lg text-black dark:text-white rounded-t-xl">
+                📟 Trial Balance Saldo + Hutang Umum
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm border border-gray-300 dark:border-gray-700 table-fixed border-collapse">
+                    <thead class="bg-gray-800 text-white">
+                        <tr>
+                            <th class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-left">Keterangan</th>
+                            <th class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-right">Debit</th>
+                            <th class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-right">Kredit</th>
+                            <th class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-right">Hutang</th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-900">
+                        @foreach ($rowsSaldo as $row)
+                            <tr class="{{ $row['nama'] === 'TOTAL' ? 'bg-yellow-200 font-bold dark:bg-yellow-600/20' : 'hover:bg-yellow-50 dark:hover:bg-gray-800' }}">
+                                <td class="px-4 py-2 border border-gray-300 dark:border-gray-700 text-left">{{ $row['nama'] }}</td>
+                                <td class="px-4 py-2 border border-gray-300 dark:border-gray-700 text-right text-green-700">
+                                    {{ $row['debit'] !== null ? 'Rp ' . number_format($row['debit'], 0, ',', '.') : '-' }}
+                                </td>
+                                <td class="px-4 py-2 border border-gray-300 dark:border-gray-700 text-right text-red-700">
+                                    {{ $row['kredit'] !== null ? 'Rp ' . number_format($row['kredit'], 0, ',', '.') : '-' }}
+                                </td>
+                                <td class="px-4 py-2 border border-gray-300 dark:border-gray-700 text-right text-blue-700">
+                                    {{ $row['hutang'] !== null ? 'Rp ' . number_format($row['hutang'], 0, ',', '.') : '-' }}
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
-    <div>
     </div>
 </x-filament::page>

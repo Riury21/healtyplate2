@@ -32,7 +32,7 @@ $totalPembelian = Pembelian::whereMonth('tanggal', $bulanIni->month)
 // Beban-beban dari dua tabel
 $namaBeban = [
     'Beban Ongkir', 'Beban Perlengkapan', 'Beban Konsumsi', 'Beban Sampah',
-    'Beban Entertain', 'Beban Gaji', 'Beban Owner', 'Beban Listrik', 'Beban Wifi'
+    'Beban Entertain', 'Beban Gaji', 'Beban Listrik', 'Beban Wifi'
 ];
 
 $totalBebanJurnal = JurnalUmum::whereMonth('tanggal', $bulanIni->month)
@@ -44,7 +44,7 @@ $totalBebanSaldo = SaldoHutangUmum::whereMonth('tanggal', $bulanIni->month)
     ->whereYear('tanggal', $bulanIni->year)
     ->whereIn('transaksi', $namaBeban)
     ->sum('jumlah');
-    
+
 // Beban tetap: Beban Owner Rp10.000.000
 $bebanTetapOwner = 10_000_000;
 
@@ -172,63 +172,68 @@ cache()->put("arus_kas_{$bulanIni->format('Y_m')}", $arusKasBersih, 3600);
             </div>
         </form>
     </div>
-<div class="w-full border rounded overflow-x-auto mt-6">
-    <div class="bg-green-300 text-center font-bold py-2">Laporan Arus Kas</div>
-    <table class="min-w-full text-sm border">
-        <thead class="bg-gray-800 text-white">
-            <tr>
-                <th class="px-4 py-2 border text-left">Keterangan</th>
-                <th class="px-4 py-2 border text-right">Jumlah</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td class="px-4 py-1 border">Saldo Kas Bulan Lalu</td>
-                <td class="px-4 py-1 border text-right">
-                    Rp {{ number_format($saldoBulanLalu, 0, ',', '.') }}
-                </td>
-            </tr>
-            <tr>
-                <td class="px-4 py-1 border">+ Penerimaan Pembayaran (BCA 484)</td>
-                <td class="px-4 py-1 border text-right text-green-700">
-                    Rp {{ number_format($totalPenerimaan, 0, ',', '.') }}
-                </td>
-            </tr>
-            <tr>
-                <td class="px-4 py-1 border">- Pembelian Bahan</td>
-                <td class="px-4 py-1 border text-right text-red-700">
-                    Rp {{ number_format($totalPembelian, 0, ',', '.') }}
-                </td>
-            </tr>
-            <tr>
-                <td class="px-4 py-1 border">- Beban-beban</td>
-                <td class="px-4 py-1 border text-right text-red-700">
-                    Rp {{ number_format($totalBeban, 0, ',', '.') }}
-                </td>
-            </tr>
-            <tr class="bg-yellow-200 font-bold">
-                <td class="px-4 py-1 border">Arus Kas Bersih</td>
-                <td class="px-4 py-1 border text-right">
-                    Rp {{ number_format($arusKasBersih, 0, ',', '.') }}
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
 
-    <div class="w-full border rounded overflow-x-auto mt-6">
-        <div class="bg-yellow-300 text-center font-bold py-2">Jurnal Umum & Pendapatan</div>
-        <table class="min-w-full text-sm border">
-            <thead class="bg-gray-800 text-white">
+    {{-- 📗 Laporan Arus Kas --}}
+    <div class="mt-6 border rounded-md shadow-sm overflow-x-auto bg-white dark:bg-gray-900 w-full max-w-md mx-auto">
+        <div class="bg-green-200 dark:bg-gray-800 text-center font-semibold py-2 text-sm text-green-900 dark:text-white rounded-t-md">
+            📗 Laporan Arus Kas
+        </div>
+        <table class="w-full text-xs border border-gray-300 dark:border-gray-700 border-collapse table-fixed">
+            <thead class="bg-gray-700 text-white">
                 <tr>
-                    <th class="px-4 py-2 border text-left">Nama Transaksi</th>
-                    <th class="px-4 py-2 border text-right">Debit Jurnal</th>
-                    <th class="px-4 py-2 border text-right">Kredit Jurnal</th>
-                    <th class="px-4 py-2 border text-right">Selisih (Debit)</th>
-                    <th class="px-4 py-2 border text-right">Kredit Pendapatan</th>
+                    <th class="px-2 py-1 border border-gray-300 dark:border-gray-600 text-left">Keterangan</th>
+                    <th class="px-2 py-1 border border-gray-300 dark:border-gray-600 text-right">Jumlah</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="bg-white dark:bg-gray-900">
+                <tr>
+                    <td class="px-2 py-1 border text-left">Saldo Kas Bulan Lalu</td>
+                    <td class="px-2 py-1 border text-right">Rp {{ number_format($saldoBulanLalu, 0, ',', '.') }}</td>
+                </tr>
+                <tr>
+                    <td class="px-2 py-1 border text-left">+ Penerimaan Pembayaran (BCA 484)</td>
+                    <td class="px-2 py-1 border text-right text-green-700">
+                        Rp {{ number_format($totalPenerimaan, 0, ',', '.') }}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="px-2 py-1 border text-left">- Pembelian Bahan</td>
+                    <td class="px-2 py-1 border text-right text-red-700">
+                        Rp {{ number_format($totalPembelian, 0, ',', '.') }}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="px-2 py-1 border text-left">- Beban-beban</td>
+                    <td class="px-2 py-1 border text-right text-red-700">
+                        Rp {{ number_format($totalBeban, 0, ',', '.') }}
+                    </td>
+                </tr>
+                <tr class="bg-yellow-100 font-semibold">
+                    <td class="px-2 py-1 border text-left">Arus Kas Bersih</td>
+                    <td class="px-2 py-1 border text-right">
+                        Rp {{ number_format($arusKasBersih, 0, ',', '.') }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    {{-- 📒 Jurnal Umum & Pendapatan --}}
+    <div class="w-full border rounded-xl shadow-md overflow-x-auto bg-white dark:bg-gray-900 mt-6">
+        <div class="bg-gradient-to-r from-yellow-300 to-yellow-200 dark:from-gray-700 dark:to-gray-800 text-center font-bold py-3 text-lg text-black dark:text-white rounded-t-xl">
+            📒 Jurnal Umum & Pendapatan
+        </div>
+        <table class="w-full text-sm border border-gray-300 dark:border-gray-700 table-fixed border-collapse">
+            <thead class="bg-gray-800 text-white">
+                <tr>
+                    <th class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-left">Nama Transaksi</th>
+                    <th class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-right">Debit Jurnal</th>
+                    <th class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-right">Kredit Jurnal</th>
+                    <th class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-right">Selisih</th>
+                    <th class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-right">Kredit Pendapatan</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white dark:bg-gray-900">
                 @php
                     $totalDebit = 0;
                     $totalKredit = 0;
@@ -262,39 +267,43 @@ cache()->put("arus_kas_{$bulanIni->format('Y_m')}", $arusKasBersih, 3600);
 
                         $totalSelisih += $selisih;
                     @endphp
-                    <tr class="hover:bg-purple-50">
-                        <td class="px-4 py-1 border">{{ $nama }}</td>
-                        <td class="px-4 py-1 border text-right text-green-700">
+
+                    <tr class="hover:bg-yellow-50 dark:hover:bg-gray-800">
+                        <td class="px-4 py-2 border border-gray-300 dark:border-gray-700 text-left">
+                            {{ $nama }}
+                        </td>
+                        <td class="px-4 py-2 border border-gray-300 dark:border-gray-700 text-right text-green-700">
                             {{ $debit ? 'Rp ' . number_format($debit, 0, ',', '.') : '-' }}
                         </td>
-                        <td class="px-4 py-1 border text-right text-red-700">
+                        <td class="px-4 py-2 border border-gray-300 dark:border-gray-700 text-right text-red-700">
                             {{ $kredit ? 'Rp ' . number_format($kredit, 0, ',', '.') : '-' }}
                         </td>
-                        <td class="px-4 py-1 border text-right text-blue-700">
+                        <td class="px-4 py-2 border border-gray-300 dark:border-gray-700 text-right text-blue-700">
                             {{ $selisih ? 'Rp ' . number_format($selisih, 0, ',', '.') : '-' }}
                         </td>
-                        <td class="px-4 py-1 border text-right text-red-700">
+                        <td class="px-4 py-2 border border-gray-300 dark:border-gray-700 text-right text-red-700">
                             {{ $kreditPendapatan ? 'Rp ' . number_format($kreditPendapatan, 0, ',', '.') : '-' }}
                         </td>
                     </tr>
                 @endforeach
 
-                <tr class="bg-yellow-200 font-bold">
-                    <td class="px-4 py-1 border">TOTAL</td>
-                    <td class="px-4 py-1 border text-right text-green-800">
+                <tr class="bg-yellow-200 font-bold dark:bg-yellow-600/20">
+                    <td class="px-4 py-2 border border-gray-300 dark:border-gray-700 text-left">TOTAL</td>
+                    <td class="px-4 py-2 border border-gray-300 dark:border-gray-700 text-right text-green-800">
                         Rp {{ number_format($totalDebit, 0, ',', '.') }}
                     </td>
-                    <td class="px-4 py-1 border text-right text-red-800">
+                    <td class="px-4 py-2 border border-gray-300 dark:border-gray-700 text-right text-red-800">
                         Rp {{ number_format($totalKredit, 0, ',', '.') }}
                     </td>
-                    <td class="px-4 py-1 border text-right text-blue-800">
+                    <td class="px-4 py-2 border border-gray-300 dark:border-gray-700 text-right text-blue-800">
                         Rp {{ number_format($totalSelisih, 0, ',', '.') }}
                     </td>
-                    <td class="px-4 py-1 border text-right text-red-800">
+                    <td class="px-4 py-2 border border-gray-300 dark:border-gray-700 text-right text-red-800">
                         Rp {{ number_format($totalPendapatan, 0, ',', '.') }}
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
+
 </x-filament::page>

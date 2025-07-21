@@ -93,7 +93,7 @@
                     </tr>
                 @endforelse
             </tbody>
-            <tfoot class="bg-yellow-100 font-semibold">
+            <tfoot class="bg-yellow-400 text-black dark:bg-gray-700 dark:text-white">
                 <tr>
                     <td class="px-4 py-2 border text-center">Total</td>
                     @foreach ($kategori as $jenis => $label)
