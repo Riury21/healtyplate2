@@ -76,7 +76,20 @@ class PendapatanResource extends Resource
         return $form->schema([
             Card::make()->schema([
                 Forms\Components\Grid::make(3)->schema([
-                    TextInput::make('nama')->label('Nama Pendapatan / Customer')->required(),
+                    Select::make('nama')
+                        ->label('Customer')
+                        ->options([
+                            'Pendapatan QL' => 'Pendapatan QL',
+                            'Pendapatan UAD' => 'Pendapatan UAD',
+                            'Pendapatan PKU Kotagede' => 'Pendapatan PKU Kotagede',
+                            'Pendapatan Sedayu' => 'Pendapatan Sedayu',
+                            'Pendapatan AVO' => 'Pendapatan AVO',
+                            'Pendapatan Siloam' => 'Pendapatan Siloam',
+                            'Pendapatan Klinik Indira' => 'Pendapatan Klinik Indira',
+                            'Pendapatan Daily' => 'Pendapatan Daily',
+                        ])
+                        ->searchable()
+                        ->required(),
                     DatePicker::make('tanggal')->required(),
                     Textarea::make('keterangan')->label('Keterangan')->rows(3),
                 ]),
@@ -97,23 +110,23 @@ class PendapatanResource extends Resource
                         ->searchable()
                         ->preload()
                         ->reactive()
-->afterStateUpdated(function ($state, $set, $get) {
-    $menu = Menu::find($state);
-    $harga = $menu?->harga ?? 0;
+                        ->afterStateUpdated(function ($state, $set, $get) {
+                            $menu = Menu::find($state);
+                            $harga = $menu?->harga ?? 0;
 
-    // Hanya set harga jika bukan sedang edit
-    if (!$get('../../is_editing')) {
-        $set('harga_satuan', $harga);
-    }
+                            // Hanya set harga jika bukan sedang edit
+                            if (!$get('../../is_editing')) {
+                                $set('harga_satuan', $harga);
+                            }
 
-    $jumlah = (int) $get('jumlah') ?: 1;
-    $diskon = (int) $get('diskon') ?: 0;
-    $totalSebelumDiskon = $harga * $jumlah;
-    $diskonNominal = ($diskon / 100) * $totalSebelumDiskon;
-    $set('total', $totalSebelumDiskon - $diskonNominal);
+                            $jumlah = (int) $get('jumlah') ?: 1;
+                            $diskon = (int) $get('diskon') ?: 0;
+                            $totalSebelumDiskon = $harga * $jumlah;
+                            $diskonNominal = ($diskon / 100) * $totalSebelumDiskon;
+                            $set('total', $totalSebelumDiskon - $diskonNominal);
 
-    self::updateSemua($get, $set);
-}),
+                            self::updateSemua($get, $set);
+                        }),
 
 
                     TextInput::make('jumlah')

@@ -198,6 +198,38 @@
         <span class="text-black">Rp {{ number_format($saldoFarras, 0, ',', '.') }}</span>
     </div>
 
+    <div class="mt-10 border rounded overflow-x-auto">
+        <div class="bg-yellow-300 text-center font-bold py-2">Laporan Hutang</div>
+        <table class="min-w-full text-sm border">
+            <thead class="bg-gray-800 text-white">
+                <tr>
+                    <th class="px-4 py-2 border text-left">Keterangan</th>
+                    <th class="px-4 py-2 border text-right">Nilai Hutang</th>
+                </tr>
+            </thead>
+            <tbody>
+                @php
+                    $rowsHutang = collect($rowsSaldo)
+                        ->filter(fn($row) => $row['hutang'] !== null && $row['hutang'] != 0)
+                        ->map(fn($row) => [
+                            'nama' => $row['nama'],
+                            'hutang' => $row['hutang']
+                        ])->values();
+                @endphp
+
+                @foreach ($rowsHutang as $row)
+                    <tr class="hover:bg-purple-100">
+                        <td class="px-4 py-1 border text-left">{{ $row['nama'] }}</td>
+                        <td class="px-4 py-1 border text-right text-blue-700">
+                            Rp {{ number_format($row['hutang'], 0, ',', '.') }}
+                        </td>
+                    </tr>
+                @endforeach
+
+            </tbody>
+        </table>
+    </div>
+
     <div class="flex flex-col lg:flex-row gap-6">
         {{-- 📘 Trial Balance Pembelian --}}
         <div class="w-full lg:w-1/2 border rounded overflow-x-auto">

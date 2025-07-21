@@ -30,7 +30,25 @@ class SaldoHutangUmumResource extends Resource
     {
         return $form->schema([
             DatePicker::make('tanggal')->required()->label('Tanggal'),
-            TextInput::make('transaksi')->required()->label('Nama Transaksi'),
+            TextInput::make('transaksi')
+                ->label('Nama Transaksi')
+                ->required()
+                ->datalist([
+                    'BCA Pak Sigit',
+                    'Farras',
+                    'Pembelian Mei',
+                    'Hutang Bu Dwi',
+                    'Hutang Sendok',
+                    'Hutang Indo Telor',
+                    'Hutang Beras',
+                    'Hutang Daging',
+                    'Hutang Ayam',
+                    'Hutang Plastik',
+                    'Beban Ongkir',
+                    'Beban Perlengkapan',
+                    'Beban Konsumsi',
+                    'Beban Sampah',
+                ]),
             Select::make('jenis_transaksi')
                 ->options(['debit' => 'Debit', 'kredit' => 'Kredit'])
                 ->required()

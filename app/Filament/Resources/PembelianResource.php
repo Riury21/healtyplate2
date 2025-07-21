@@ -50,6 +50,16 @@ class PembelianResource extends Resource
 
                 TextInput::make('transaksi')
                     ->label('Nama Transaksi')
+                    ->datalist([
+                        'Farras',
+                        'Hutang Ayam',
+                        'Hutang Bu Dwi',
+                        'Hutang Daging',
+                        'Hutang Beras',
+                        'Hutang Indo Telor',
+                        'Hutang Sendok',
+                        'Hutang Plastik',
+                    ])
                     ->required(),
 
                 Select::make('jenis_transaksi')

@@ -2,6 +2,54 @@
 use App\Models\JurnalUmum;
 use App\Models\Pendapatan;
 use Illuminate\Support\Carbon;
+use App\Models\Pembelian;
+use App\Models\SaldoHutangUmum;
+use Illuminate\Support\Facades\DB;
+
+$bulan = request('bulan', now()->format('Y-m'));
+$bulanIni = Carbon::parse($bulan);
+
+// --- Variabel dasar
+$saldoBulanLalu = 20858229; // default awal
+$bulanSebelumnya = $bulanIni->copy()->subMonth();
+
+// Ambil arus kas bersih bulan sebelumnya jika tersedia
+$arusKasBulanLalu = cache()->remember("arus_kas_{$bulanSebelumnya->format('Y_m')}", 60, function () use ($bulanSebelumnya) {
+    return null; // nanti isi logika ambil nilai real dari DB jika ada
+});
+
+// Jika ada data dari bulan lalu, pakai itu
+if ($arusKasBulanLalu !== null) {
+    $saldoBulanLalu = $arusKasBulanLalu;
+}
+
+// Total pembelian bahan
+$totalPembelian = Pembelian::whereMonth('tanggal', $bulanIni->month)
+    ->whereYear('tanggal', $bulanIni->year)
+    ->where('jenis_transaksi', 'debit')
+    ->sum('jumlah');
+
+// Beban-beban dari dua tabel
+$namaBeban = [
+    'Beban Ongkir', 'Beban Perlengkapan', 'Beban Konsumsi', 'Beban Sampah',
+    'Beban Entertain', 'Beban Gaji', 'Beban Owner', 'Beban Listrik', 'Beban Wifi'
+];
+
+$totalBebanJurnal = JurnalUmum::whereMonth('tanggal', $bulanIni->month)
+    ->whereYear('tanggal', $bulanIni->year)
+    ->whereIn('transaksi', $namaBeban)
+    ->sum('jumlah');
+
+$totalBebanSaldo = SaldoHutangUmum::whereMonth('tanggal', $bulanIni->month)
+    ->whereYear('tanggal', $bulanIni->year)
+    ->whereIn('transaksi', $namaBeban)
+    ->sum('jumlah');
+    
+// Beban tetap: Beban Owner Rp10.000.000
+$bebanTetapOwner = 10_000_000;
+
+// Gabungan semua
+$totalBeban = $totalBebanJurnal + $totalBebanSaldo + $bebanTetapOwner;
 
 $bulan = request('bulan', now()->format('Y-m'));
 $bulanIni = Carbon::parse($bulan);
@@ -87,7 +135,19 @@ $sortedData = collect($urutanTransaksi)->map(function ($nama) use ($jurnalData, 
     }
     return true;
 })->values();
+
+// ✅ Gunakan nilai debit selisih dari baris BCA 484
+$bcaRow = $sortedData->firstWhere('transaksi', 'BCA 484');
+$kreditPendapatanBca = $pendapatanData['Pendapatan Daily']['kredit'] ?? 0;
+$totalPenerimaan = $kreditPendapatanBca + ($bcaRow['debit'] ?? 0) - ($bcaRow['kredit'] ?? 0);
+
+// Hitung Arus Kas Bersih
+$arusKasBersih = $saldoBulanLalu + $totalPenerimaan - $totalPembelian - $totalBeban;
+
+// Simpan untuk bulan depan
+cache()->put("arus_kas_{$bulanIni->format('Y_m')}", $arusKasBersih, 3600);
 ?>
+
 
 <x-filament::page>
     <div class="mb-4">
@@ -112,6 +172,49 @@ $sortedData = collect($urutanTransaksi)->map(function ($nama) use ($jurnalData, 
             </div>
         </form>
     </div>
+<div class="w-full border rounded overflow-x-auto mt-6">
+    <div class="bg-green-300 text-center font-bold py-2">Laporan Arus Kas</div>
+    <table class="min-w-full text-sm border">
+        <thead class="bg-gray-800 text-white">
+            <tr>
+                <th class="px-4 py-2 border text-left">Keterangan</th>
+                <th class="px-4 py-2 border text-right">Jumlah</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="px-4 py-1 border">Saldo Kas Bulan Lalu</td>
+                <td class="px-4 py-1 border text-right">
+                    Rp {{ number_format($saldoBulanLalu, 0, ',', '.') }}
+                </td>
+            </tr>
+            <tr>
+                <td class="px-4 py-1 border">+ Penerimaan Pembayaran (BCA 484)</td>
+                <td class="px-4 py-1 border text-right text-green-700">
+                    Rp {{ number_format($totalPenerimaan, 0, ',', '.') }}
+                </td>
+            </tr>
+            <tr>
+                <td class="px-4 py-1 border">- Pembelian Bahan</td>
+                <td class="px-4 py-1 border text-right text-red-700">
+                    Rp {{ number_format($totalPembelian, 0, ',', '.') }}
+                </td>
+            </tr>
+            <tr>
+                <td class="px-4 py-1 border">- Beban-beban</td>
+                <td class="px-4 py-1 border text-right text-red-700">
+                    Rp {{ number_format($totalBeban, 0, ',', '.') }}
+                </td>
+            </tr>
+            <tr class="bg-yellow-200 font-bold">
+                <td class="px-4 py-1 border">Arus Kas Bersih</td>
+                <td class="px-4 py-1 border text-right">
+                    Rp {{ number_format($arusKasBersih, 0, ',', '.') }}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
     <div class="w-full border rounded overflow-x-auto mt-6">
         <div class="bg-yellow-300 text-center font-bold py-2">Jurnal Umum & Pendapatan</div>
